@@ -1,0 +1,19 @@
+{
+    "name": "nordsoftware/yii2-file-manager",
+    "description": "An extension for the Yii framework that provides an unified interface for managing files.",
+    "license": "BSD-3-Clause",
+    "keywords": ["yii-extension"],
+    "authors": [
+        {
+            "name": "Christoffer Niska",
+            "email": "christoffer.niska@nordsoftware.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "nord\\yii\\filemanager\\": "src"
+        }
+    }
+}
