@@ -85,11 +85,12 @@ class FileManager extends Component
         $storageConfig = ArrayHelper::remove($config, 'storage', []);
         $modelConfig = ArrayHelper::remove($config, 'model', []);
 
-        $filename = isset($config['filename']) ? $config['filename'] . '.' . $resource->getExtension() : $resource->getName();
+        $name = isset($config['name']) ? $config['name'] : $resource->getName();
+        $extension = isset($config['extension']) ? $config['extension'] : $resource->getExtension();
         $model = $this->createFile($modelConfig);
         $model->setAttributes([
-            'extension' => $resource->getExtension(),
-            'name' => $filename,
+            'extension' => $extension,
+            'name' => $name,
             'type' => $resource->getType(),
             'size' => $resource->getSize(),
             'hash' => $resource->getHash(),
@@ -99,7 +100,7 @@ class FileManager extends Component
             throw new Exception('Failed to save file model.');
         }
 
-        $storageConfig['filename'] = $filename;
+        $storageConfig['filename'] = $this->getFileName($model);
         $this->getStorage($model->storage)->saveFile($resource, $storageConfig);
         return $model;
     }
@@ -129,7 +130,8 @@ class FileManager extends Component
         if (!$model) {
             throw new Exception('Failed to find file model to delete.');
         }
-        if (!$this->getStorage($model->storage)->deleteFile($model->name)) {
+        $filename = $this->getFilename($model);
+        if (!$this->getStorage($model->storage)->deleteFile($filename)) {
             throw new Exception("Failed to delete file from storage '{$model->storage}'.");
         }
         if (!$model->delete()) {
@@ -147,21 +149,8 @@ class FileManager extends Component
     public function getFileUrl($id)
     {
         $model = $this->findFile($id);
-        return $this->getStorage($model->storage)->getFileUrl($model->name);
-    }
-
-    /**
-     * Returns a specific storage component.
-     *
-     * @param string $name storage component name.
-     * @return StorageInterface storage instance.
-     */
-    protected function getStorage($name)
-    {
-        if (!isset($this->_storages[$name])) {
-            throw new InvalidParamException("Trying to get unknown storage '$name'.");
-        }
-        return $this->_storages[$name];
+        $filename = $this->getFileName($model);
+        return $this->getStorage($model->storage)->getFileUrl($filename);
     }
 
     /**
@@ -182,5 +171,30 @@ class FileManager extends Component
     public function setModelClass($modelClass)
     {
         $this->_modelClass = $modelClass;
+    }
+
+    /**
+     * Returns the filename for a specific model.
+     *
+     * @param File $model file model.
+     * @return string filename.
+     */
+    protected function getFileName(File $model)
+    {
+        return "{$model->name}-{$model->id}.{$model->extension}";
+    }
+
+    /**
+     * Returns a specific storage component.
+     *
+     * @param string $name storage component name.
+     * @return StorageInterface storage instance.
+     */
+    protected function getStorage($name)
+    {
+        if (!isset($this->_storages[$name])) {
+            throw new InvalidParamException("Trying to get unknown storage '$name'.");
+        }
+        return $this->_storages[$name];
     }
 }

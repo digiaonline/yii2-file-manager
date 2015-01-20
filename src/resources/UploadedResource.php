@@ -33,7 +33,7 @@ class UploadedResource extends Component implements ResourceInterface
      */
     public function getName()
     {
-        return $this->_file->name;
+        return substr($this->_file->name, 0, strrpos($this->_file->name, '.'));
     }
 
     /**

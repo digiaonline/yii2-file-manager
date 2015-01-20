@@ -18,24 +18,24 @@ interface StorageInterface
     /**
      * Deletes the file with the given name.
      *
-     * @param string $name file name.
+     * @param string $filename file name.
      * @return boolean whether the operation was successful.
      */
-    public function deleteFile($name);
+    public function deleteFile($filename);
 
     /**
      * Returns the URL for the file with the given name.
      *
-     * @param string $name file name.
+     * @param string $filename file name.
      * @return string file URL.
      */
-    public function getFileUrl($name);
+    public function getFileUrl($filename);
 
     /**
      * Returns whether the file with the given name exists.
      *
-     * @param string $name file name.
+     * @param string $filename file name.
      * @return boolean the result.
      */
-    public function fileExists($name);
+    public function fileExists($filename);
 }

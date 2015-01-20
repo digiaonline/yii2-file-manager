@@ -49,39 +49,39 @@ class FileStorage extends Component implements StorageInterface
     /**
      * @inheritdoc
      */
-    public function deleteFile($name)
+    public function deleteFile($filename)
     {
-        if (!$this->fileExists($name)) {
-            throw new Exception("Failed to locate file to delete '$name'.");
+        if (!$this->fileExists($filename)) {
+            throw new Exception("Failed to locate file to delete '$filename'.");
         }
-        return unlink($this->getFilePath($name));
+        return unlink($this->getFilePath($filename));
     }
 
     /**
      * @inheritdoc
      */
-    public function getFileUrl($name)
+    public function getFileUrl($filename)
     {
-        return $this->getBaseUrl() . '/' . $name;
+        return $this->getBaseUrl() . '/' . $filename;
     }
 
     /**
      * @inheritdoc
      */
-    public function fileExists($name)
+    public function fileExists($filename)
     {
-        return file_exists($this->getFilePath($name));
+        return file_exists($this->getFilePath($filename));
     }
 
     /**
      * Returns the file path for the file with the given name.
      *
-     * @param string $name file name.
+     * @param string $filename file name.
      * @return string file path.
      */
-    public function getFilePath($name)
+    public function getFilePath($filename)
     {
-        return $this->getBasePath() . DIRECTORY_SEPARATOR . $name;
+        return $this->getBasePath() . DIRECTORY_SEPARATOR . $filename;
     }
 
     /**
