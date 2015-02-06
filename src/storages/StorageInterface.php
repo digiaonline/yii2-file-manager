@@ -32,6 +32,14 @@ interface StorageInterface
     public function getFileUrl($filename);
 
     /**
+     * Returns the path for the file with the given name.
+     *
+     * @param string $filename file name.
+     * @return string file path.
+     */
+    public function getFilePath($filename);
+
+    /**
      * Returns whether the file with the given name exists.
      *
      * @param string $filename file name.

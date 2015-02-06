@@ -11,6 +11,7 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 
 class FileManager extends Component
 {
@@ -24,8 +25,11 @@ class FileManager extends Component
      * @var array configuration of the enabled storage components that can be used for storing files.
      */
     public $storages = [];
+    /**
+     * @var string name of the file model class.
+     */
+    public $modelClass;
 
-    private $_modelClass;
     private $_storages;
 
     /**
@@ -35,8 +39,8 @@ class FileManager extends Component
     {
         parent::init();
 
-        if (!isset($this->_modelClass)) {
-            $this->_modelClass = File::className();
+        if (!isset($this->modelClass)) {
+            $this->modelClass = File::className();
         }
 
         $this->initStorages();
@@ -68,7 +72,7 @@ class FileManager extends Component
      */
     public function createFile(array $config = [])
     {
-        $modelClass = $this->getModelClass();
+        $modelClass = $this->modelClass;
         return new $modelClass($config);
     }
 
@@ -82,15 +86,17 @@ class FileManager extends Component
      */
     public function saveFile(ResourceInterface $resource, array $config = [])
     {
+        $modelConfig = ArrayHelper::remove($config, 'file', []);
         $storageConfig = ArrayHelper::remove($config, 'storage', []);
-        $modelConfig = ArrayHelper::remove($config, 'model', []);
+        $name = ArrayHelper::remove($config, 'name', $resource->getName());
+        $extension = ArrayHelper::remove($config, 'extension', $resource->getExtension());
+        $folder = ArrayHelper::remove($config, 'path');
 
-        $name = isset($config['name']) ? $config['name'] : $resource->getName();
-        $extension = isset($config['extension']) ? $config['extension'] : $resource->getExtension();
         $model = $this->createFile($modelConfig);
         $model->setAttributes([
+            'name' => $this->normalizeFilename($name),
             'extension' => $extension,
-            'name' => $name,
+            'folder' => FileHelper::normalizePath($folder),
             'type' => $resource->getType(),
             'size' => $resource->getSize(),
             'hash' => $resource->getHash(),
@@ -100,37 +106,39 @@ class FileManager extends Component
             throw new Exception('Failed to save file model.');
         }
 
-        $storageConfig['filename'] = $this->getFileName($model);
-        $this->getStorage($model->storage)->saveFile($resource, $storageConfig);
+        $storageConfig['filename'] = $model->getFilePath();
+        if (!$this->getStorage($model->storage)->saveFile($resource, $storageConfig)) {
+            throw new Exception("Failed to save file to storage '{$model->storage}'.");
+        }
         return $model;
     }
 
     /**
      * Returns a file model instance using the given search condition.
      *
-     * @param mixed $condition search condition.
-     * @return File file model instance.
+     * @return \yii\db\ActiveQuery active query instance.
      */
-    public function findFile($condition)
+    public function findFile()
     {
         /** @var File $modelClass */
-        $modelClass = $this->getModelClass();
-        return $modelClass::findOne($condition);
+        $modelClass = $this->modelClass;
+        return $modelClass::find();
     }
 
     /**
      * Deletes a file both from its storage and the database.
      *
      * @param integer $id file model id.
-     * @return boolean whether the operation was successful.
+     * @return bool whether the operation was successful.
+     * @throws Exception
      */
     public function deleteFile($id)
     {
-        $model = $this->findFile($id);
+        $model = $this->findFile()->where(['id' => $id])->one();
         if (!$model) {
             throw new Exception('Failed to find file model to delete.');
         }
-        $filename = $this->getFilename($model);
+        $filename = $this->getFilePath($model);
         if (!$this->getStorage($model->storage)->deleteFile($filename)) {
             throw new Exception("Failed to delete file from storage '{$model->storage}'.");
         }
@@ -148,29 +156,20 @@ class FileManager extends Component
      */
     public function getFileUrl($id)
     {
-        $model = $this->findFile($id);
+        $model = $this->findFile()->where(['id' => $id])->one();
         $filename = $this->getFileName($model);
         return $this->getStorage($model->storage)->getFileUrl($filename);
     }
 
     /**
-     * Returns the class name for the file model class.
+     * Returns the full path for a specific model.
      *
-     * @return string class name.
+     * @param File $model file model.
+     * @return string file path.
      */
-    public function getModelClass()
+    public function getFilePath(File $model)
     {
-        return $this->_modelClass;
-    }
-
-    /**
-     * Sets the class name for the file model class.
-     *
-     * @param string $modelClass class name.
-     */
-    public function setModelClass($modelClass)
-    {
-        $this->_modelClass = $modelClass;
+        return $this->getStorage($model->storage)->getFilePath($model->getFilePath());
     }
 
     /**
@@ -179,9 +178,20 @@ class FileManager extends Component
      * @param File $model file model.
      * @return string filename.
      */
-    protected function getFileName(File $model)
+    public function getFileName(File $model)
     {
         return "{$model->name}-{$model->id}.{$model->extension}";
+    }
+
+    /**
+     * Normalizes the given filename by removing illegal characters.
+     *
+     * @param string $name the filename.
+     * @return string the normalized filename.
+     */
+    protected function normalizeFilename($name)
+    {
+        return strtolower(str_replace('+', '-', preg_replace('/%[A-Z0-9]{2}/', '', urlencode($name))));
     }
 
     /**

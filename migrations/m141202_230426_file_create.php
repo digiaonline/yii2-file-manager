@@ -27,6 +27,4 @@ class m141202_230426_file_create extends Migration
     {
         $this->dropTable('file');
     }
-
-
 }

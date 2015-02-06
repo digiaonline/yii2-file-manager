@@ -66,14 +66,6 @@ class FileStorage extends Component implements StorageInterface
     }
 
     /**
-     * @inheritdoc
-     */
-    public function fileExists($filename)
-    {
-        return file_exists($this->getFilePath($filename));
-    }
-
-    /**
      * Returns the file path for the file with the given name.
      *
      * @param string $filename file name.
@@ -82,6 +74,14 @@ class FileStorage extends Component implements StorageInterface
     public function getFilePath($filename)
     {
         return $this->getBasePath() . DIRECTORY_SEPARATOR . $filename;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function fileExists($filename)
+    {
+        return file_exists($this->getFilePath($filename));
     }
 
     /**

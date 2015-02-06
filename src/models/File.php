@@ -13,6 +13,7 @@ use yii\db\Expression;
  * @property integer $id
  * @property string $name
  * @property string $extension
+ * @property string $folder
  * @property string $type
  * @property string $size
  * @property string $hash
@@ -55,7 +56,7 @@ class File extends ActiveRecord
             [['name', 'extension', 'type', 'storage'], 'required'],
             [['createdAt'], 'safe'],
             [['size', 'status'], 'integer', 'integerOnly' => true],
-            [['name', 'extension', 'type', 'hash', 'storage'], 'string', 'max' => 255]
+            [['name', 'extension', 'folder', 'type', 'hash', 'storage'], 'string', 'max' => 255]
         ];
     }
 
@@ -68,6 +69,7 @@ class File extends ActiveRecord
             'id' => 'ID',
             'name' => 'Name',
             'extension' => 'Extension',
+            'folder' => 'Folder',
             'type' => 'Type',
             'size' => 'Size',
             'hash' => 'Hash',
@@ -75,5 +77,26 @@ class File extends ActiveRecord
             'createdAt' => 'Created At',
             'status' => 'Status',
         ];
+    }
+
+    /**
+     * Returns the file name for this file.
+     *
+     * @return string file name
+     */
+    public function getFileName()
+    {
+        return "{$this->name}-{$this->id}.{$this->extension}";
+    }
+
+    /**
+     * Returns the file path for this file.
+     *
+     * @return string file path.
+     */
+    public function getFilePath()
+    {
+        $fileName = $this->getFileName();
+        return $this->folder !== null ? "{$this->folder}/{$fileName}" : $fileName;
     }
 }
