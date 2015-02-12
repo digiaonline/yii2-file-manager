@@ -25,9 +25,9 @@ class FileStorage extends Component implements StorageInterface
         parent::init();
 
         if (!isset($this->_basePath)) {
-            $this->setBasePath(Yii::getAlias('@webroot') . '/' . self::DEFAULT_DIRECTORY);
+            $this->setBasePath(Yii::getAlias('@app/web') . '/' . self::DEFAULT_DIRECTORY);
         }
-        if (!isset($this->_baseUrl)) {
+        if (!isset($this->_baseUrl) && Yii::$app instanceof \yii\web\Application) {
             $this->setBaseUrl(Yii::$app->request->baseUrl . DIRECTORY_SEPARATOR . self::DEFAULT_DIRECTORY);
         }
     }

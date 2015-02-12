@@ -90,13 +90,13 @@ class FileManager extends Component
         $storageConfig = ArrayHelper::remove($config, 'storage', []);
         $name = ArrayHelper::remove($config, 'name', $resource->getName());
         $extension = ArrayHelper::remove($config, 'extension', $resource->getExtension());
-        $folder = ArrayHelper::remove($config, 'path');
+        $folder = ArrayHelper::remove($config, 'folder');
 
         $model = $this->createFile($modelConfig);
         $model->setAttributes([
             'name' => $this->normalizeFilename($name),
             'extension' => $extension,
-            'folder' => FileHelper::normalizePath($folder),
+            'folder' => $folder,
             'type' => $resource->getType(),
             'size' => $resource->getSize(),
             'hash' => $resource->getHash(),
