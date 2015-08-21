@@ -3,47 +3,48 @@
 namespace nord\yii\filemanager\storages;
 
 use nord\yii\filemanager\resources\ResourceInterface;
+use nord\yii\filemanager\models\File;
 
 interface StorageInterface
 {
     /**
-     * Saves a file resource using the given configuration.
+     * Saves the given file with the specified contents
      *
-     * @param ResourceInterface $resource resource instance.
-     * @param array $config configuration for the operation.
+     * @param File $file
+     * @param string $contents
      * @return boolean whether the file was saved successfully.
      */
-    public function saveFile(ResourceInterface $resource, array $config = []);
+    public function saveFile(File $file, $contents);
 
     /**
-     * Deletes the file with the given name.
+     * Deletes the given file.
      *
-     * @param string $filename file name.
+     * @param File $file the file.
      * @return boolean whether the operation was successful.
      */
-    public function deleteFile($filename);
+    public function deleteFile(File $file);
 
     /**
-     * Returns the URL for the file with the given name.
+     * Returns the URL for the given file.
      *
-     * @param string $filename file name.
+     * @param File $file the file.
      * @return string file URL.
      */
-    public function getFileUrl($filename);
+    public function getFileUrl(File $file);
 
     /**
-     * Returns the path for the file with the given name.
+     * Returns the path for given file.
      *
-     * @param string $filename file name.
+     * @param File $file the file.
      * @return string file path.
      */
-    public function getFilePath($filename);
+    public function getFilePath(File $file);
 
     /**
-     * Returns whether the file with the given name exists.
+     * Returns whether the given file exists.
      *
-     * @param string $filename file name.
+     * @param File $file the file.
      * @return boolean the result.
      */
-    public function fileExists($filename);
+    public function fileExists(File $file);
 }

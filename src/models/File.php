@@ -79,6 +79,17 @@ class File extends ActiveRecord
         ];
     }
 
+
+    /**
+     * Returns the name of this file, without the file extension
+     *
+     * @return string
+     */
+    public function getBaseName()
+    {
+        return "{$this->name}-{$this->id}";
+    }
+
     /**
      * Returns the file name for this file.
      *

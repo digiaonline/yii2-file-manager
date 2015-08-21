@@ -7,10 +7,17 @@
         {
             "name": "Christoffer Niska",
             "email": "christoffer.niska@nordsoftware.com"
+        },
+        {
+            "name": "Sam Stenvall",
+            "email": "sam.stenvall@nordsoftware.com"
         }
     ],
     "minimum-stability": "dev",
-    "require": {},
+    "require": {
+        "league/flysystem": "^1.1@dev",
+        "league/flysystem-aws-s3-v2": "^1.0@dev"
+    },
     "autoload": {
         "psr-4": {
             "nord\\yii\\filemanager\\": "src"
