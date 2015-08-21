@@ -36,7 +36,11 @@ class FileResource extends Component implements ResourceInterface
      */
     public function getName()
     {
-        return substr(basename($this->uri), 0, strrpos(basename($this->uri), '.'));
+        if (strpos($this->uri, '.') !== false) {
+            return substr(basename($this->uri), 0, strrpos(basename($this->uri), '.'));
+        } else {
+            return basename($this->uri);
+        }
     }
 
     /**
