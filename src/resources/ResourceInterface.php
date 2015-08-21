@@ -39,12 +39,12 @@ interface ResourceInterface
      */
     public function getHash();
 
+
     /**
-     * Saves the associated file in the given path.
+     * Returns the contents of this resource
      *
-     * @param string $path destination path.
-     * @param array $config configuration for the operation.
-     * @return boolean whether the file was saved successfully.
+     * @return string
      */
-    public function saveAs($path, array $config = []);
+    public function getContents();
+
 }

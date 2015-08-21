@@ -3,6 +3,7 @@
 namespace nord\yii\filemanager\storages;
 
 use nord\yii\filemanager\resources\ResourceInterface;
+use nord\yii\filemanager\models\File;
 use Yii;
 use yii\base\Component;
 use yii\base\Exception;
@@ -35,34 +36,31 @@ class FileStorage extends Component implements StorageInterface
     /**
      * @inheritdoc
      */
-    public function saveFile(ResourceInterface $resource, array $config = [])
+    public function saveFile(File $file, $contents)
     {
-        if (!isset($config['filename'])) {
-            throw new InvalidParamException('Trying to save a file without a filename.');
-        }
-        $path = $this->getBasePath() . DIRECTORY_SEPARATOR . $config['filename'];
+        $path = $this->getBasePath().'/'.$file->getFilePath();
         @mkdir(dirname($path), 0777, true);
-        $resourceConfig = ArrayHelper::remove($config, 'resource', []);
-        return $resource->saveAs($path, $resourceConfig);
+
+        return file_put_contents($path, $contents) !== false;
     }
 
     /**
      * @inheritdoc
      */
-    public function deleteFile($filename)
+    public function deleteFile(File $file)
     {
-        if (!$this->fileExists($filename)) {
-            throw new Exception("Failed to locate file to delete '$filename'.");
+        if (!$this->fileExists($file)) {
+            throw new Exception("Failed to locate file to delete '{$file->getFileName()}'.");
         }
-        return unlink($this->getFilePath($filename));
+        return unlink($this->getFilePath($file));
     }
 
     /**
      * @inheritdoc
      */
-    public function getFileUrl($filename)
+    public function getFileUrl(File $file)
     {
-        return $this->getBaseUrl() . '/' . $filename;
+        return $this->getBaseUrl() . '/' . $file->getFilePath();
     }
 
     /**
@@ -71,17 +69,17 @@ class FileStorage extends Component implements StorageInterface
      * @param string $filename file name.
      * @return string file path.
      */
-    public function getFilePath($filename)
+    public function getFilePath(File $file)
     {
-        return $this->getBasePath() . DIRECTORY_SEPARATOR . $filename;
+        return $this->getBasePath() . DIRECTORY_SEPARATOR . $file->getFilePath();
     }
 
     /**
      * @inheritdoc
      */
-    public function fileExists($filename)
+    public function fileExists(File $file)
     {
-        return file_exists($this->getFilePath($filename));
+        return file_exists($this->getFilePath($file));
     }
 
     /**

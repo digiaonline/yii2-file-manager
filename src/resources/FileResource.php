@@ -71,13 +71,13 @@ class FileResource extends Component implements ResourceInterface
         return md5($this->_contents);
     }
 
+
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function saveAs($path, array $config = [])
+    public function getContents()
     {
-        $flags = ArrayHelper::remove($config, 'flags');
-        $context = ArrayHelper::remove($config, 'context');
-        return file_put_contents($path, $this->_contents, $flags, $context);
+        return $this->_contents;
     }
+
 }

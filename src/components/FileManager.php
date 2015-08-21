@@ -11,7 +11,6 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
 
 class FileManager extends Component
 {
@@ -113,7 +112,7 @@ class FileManager extends Component
         }
 
         $storageConfig['filename'] = $model->getFilePath();
-        if (!$this->getStorage($model->storage)->saveFile($resource, $storageConfig)) {
+        if (!$this->getStorage($model->storage)->saveFile($model, $resource->getContents())) {
             throw new Exception("Failed to save file to storage '{$model->storage}'.");
         }
         return $model;
@@ -144,8 +143,7 @@ class FileManager extends Component
         if (!$model) {
             throw new Exception('Failed to find file model to delete.');
         }
-        $filename = $this->getFilePath($model);
-        if (!$this->getStorage($model->storage)->deleteFile($filename)) {
+        if (!$this->getStorage($model->storage)->deleteFile($model)) {
             throw new Exception("Failed to delete file from storage '{$model->storage}'.");
         }
         if (!$model->delete()) {
@@ -163,8 +161,7 @@ class FileManager extends Component
     public function getFileUrl($id)
     {
         $model = $this->findFile()->where(['id' => $id])->one();
-        $filename = $this->getFileName($model);
-        return $this->getStorage($model->storage)->getFileUrl($filename);
+        return $this->getStorage($model->storage)->getFileUrl($model);
     }
 
     /**
@@ -175,18 +172,7 @@ class FileManager extends Component
      */
     public function getFilePath(File $model)
     {
-        return $this->getStorage($model->storage)->getFilePath($model->getFilePath());
-    }
-
-    /**
-     * Returns the filename for a specific model.
-     *
-     * @param File $model file model.
-     * @return string filename.
-     */
-    public function getFileName(File $model)
-    {
-        return "{$model->name}-{$model->id}.{$model->extension}";
+        return $this->getStorage($model->storage)->getFilePath($model);
     }
 
     /**
