@@ -4,6 +4,7 @@ namespace nord\yii\filemanager\components;
 
 use nord\yii\filemanager\resources\ResourceInterface;
 use nord\yii\filemanager\storages\FileStorage;
+use nord\yii\filemanager\storages\S3Storage;
 use nord\yii\filemanager\storages\StorageInterface;
 use nord\yii\filemanager\models\File;
 use Yii;
@@ -11,7 +12,6 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
-use yii\helpers\FileHelper;
 
 class FileManager extends Component
 {
@@ -25,6 +25,12 @@ class FileManager extends Component
      * @var array configuration of the enabled storage components that can be used for storing files.
      */
     public $storages = [];
+
+    /**
+     * @var string the default storage to use when saving files
+     */
+    public $defaultStorage = self::DEFAULT_STORAGE;
+
     /**
      * @var string name of the file model class.
      */
@@ -54,6 +60,7 @@ class FileManager extends Component
         $this->storages = ArrayHelper::merge(
             [
                 'file' => ['class' => FileStorage::className()],
+                's3'   => ['class' => S3Storage::className()],
             ],
             $this->storages
         );
@@ -100,14 +107,14 @@ class FileManager extends Component
             'type' => $resource->getType(),
             'size' => $resource->getSize(),
             'hash' => $resource->getHash(),
-            'storage' => ArrayHelper::remove($storageConfig, 'name', self::DEFAULT_STORAGE),
+            'storage' => ArrayHelper::remove($storageConfig, 'name', $this->defaultStorage),
         ]);
         if (!$model->save()) {
             throw new Exception('Failed to save file model.');
         }
 
         $storageConfig['filename'] = $model->getFilePath();
-        if (!$this->getStorage($model->storage)->saveFile($resource, $storageConfig)) {
+        if (!$this->getStorage($model->storage)->saveFile($model, $resource->getContents())) {
             throw new Exception("Failed to save file to storage '{$model->storage}'.");
         }
         return $model;
@@ -138,8 +145,7 @@ class FileManager extends Component
         if (!$model) {
             throw new Exception('Failed to find file model to delete.');
         }
-        $filename = $this->getFilePath($model);
-        if (!$this->getStorage($model->storage)->deleteFile($filename)) {
+        if (!$this->getStorage($model->storage)->deleteFile($model)) {
             throw new Exception("Failed to delete file from storage '{$model->storage}'.");
         }
         if (!$model->delete()) {
@@ -157,8 +163,7 @@ class FileManager extends Component
     public function getFileUrl($id)
     {
         $model = $this->findFile()->where(['id' => $id])->one();
-        $filename = $this->getFileName($model);
-        return $this->getStorage($model->storage)->getFileUrl($filename);
+        return $this->getStorage($model->storage)->getFileUrl($model);
     }
 
     /**
@@ -169,18 +174,7 @@ class FileManager extends Component
      */
     public function getFilePath(File $model)
     {
-        return $this->getStorage($model->storage)->getFilePath($model->getFilePath());
-    }
-
-    /**
-     * Returns the filename for a specific model.
-     *
-     * @param File $model file model.
-     * @return string filename.
-     */
-    public function getFileName(File $model)
-    {
-        return "{$model->name}-{$model->id}.{$model->extension}";
+        return $this->getStorage($model->storage)->getFilePath($model);
     }
 
     /**

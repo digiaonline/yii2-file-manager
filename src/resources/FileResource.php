@@ -36,7 +36,11 @@ class FileResource extends Component implements ResourceInterface
      */
     public function getName()
     {
-        return substr(basename($this->uri), 0, strrpos(basename($this->uri), '.'));
+        if (strpos($this->uri, '.') !== false) {
+            return substr(basename($this->uri), 0, strrpos(basename($this->uri), '.'));
+        } else {
+            return basename($this->uri);
+        }
     }
 
     /**
@@ -71,13 +75,13 @@ class FileResource extends Component implements ResourceInterface
         return md5($this->_contents);
     }
 
+
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function saveAs($path, array $config = [])
+    public function getContents()
     {
-        $flags = ArrayHelper::remove($config, 'flags');
-        $context = ArrayHelper::remove($config, 'context');
-        return file_put_contents($path, $this->_contents, $flags, $context);
+        return $this->_contents;
     }
+
 }

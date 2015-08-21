@@ -68,13 +68,15 @@ class UploadedResource extends Component implements ResourceInterface
         return hash_file('md5', $this->_file->tempName);
     }
 
+
     /**
-     * @inheritdoc
+     * @inheritDoc
      */
-    public function saveAs($path, array $config = [])
+    public function getContents()
     {
-        return $this->_file->saveAs($path, isset($config['deleteTempFile']) ? $config['deleteTempFile'] : true);
+        return file_get_contents($this->_file->tempName);
     }
+
 
     /**
      * Sets the file associated to this resource.
