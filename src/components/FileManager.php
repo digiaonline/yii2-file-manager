@@ -25,6 +25,12 @@ class FileManager extends Component
      * @var array configuration of the enabled storage components that can be used for storing files.
      */
     public $storages = [];
+
+    /**
+     * @var string the default storage to use when saving files
+     */
+    public $defaultStorage = self::DEFAULT_STORAGE;
+
     /**
      * @var string name of the file model class.
      */
@@ -100,7 +106,7 @@ class FileManager extends Component
             'type' => $resource->getType(),
             'size' => $resource->getSize(),
             'hash' => $resource->getHash(),
-            'storage' => ArrayHelper::remove($storageConfig, 'name', self::DEFAULT_STORAGE),
+            'storage' => ArrayHelper::remove($storageConfig, 'name', $this->defaultStorage),
         ]);
         if (!$model->save()) {
             throw new Exception('Failed to save file model.');
