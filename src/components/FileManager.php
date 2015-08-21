@@ -4,6 +4,7 @@ namespace nord\yii\filemanager\components;
 
 use nord\yii\filemanager\resources\ResourceInterface;
 use nord\yii\filemanager\storages\FileStorage;
+use nord\yii\filemanager\storages\S3Storage;
 use nord\yii\filemanager\storages\StorageInterface;
 use nord\yii\filemanager\models\File;
 use Yii;
@@ -59,6 +60,7 @@ class FileManager extends Component
         $this->storages = ArrayHelper::merge(
             [
                 'file' => ['class' => FileStorage::className()],
+                's3'   => ['class' => S3Storage::className()],
             ],
             $this->storages
         );
