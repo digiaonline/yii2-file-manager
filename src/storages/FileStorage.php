@@ -9,6 +9,7 @@ use yii\base\Component;
 use yii\base\Exception;
 use yii\base\InvalidParamException;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Url;
 
 class FileStorage extends Component implements StorageInterface
 {
@@ -60,7 +61,8 @@ class FileStorage extends Component implements StorageInterface
      */
     public function getFileUrl(File $file)
     {
-        return $this->getBaseUrl() . '/' . $file->getFilePath();
+        $url = $this->getBaseUrl() . '/' . $file->getFilePath();
+        return Url::to($url, true);
     }
 
     /**
