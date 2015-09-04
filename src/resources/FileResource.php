@@ -6,6 +6,7 @@ use finfo;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 
 class FileResource extends Component implements ResourceInterface
 {
@@ -48,7 +49,15 @@ class FileResource extends Component implements ResourceInterface
      */
     public function getExtension()
     {
-        return substr($this->uri, strrpos($this->uri, '.') + 1);
+        // Generate the extension based on the MIME type if possible, eliminates inconsistencies
+        $mimeType = end(FileHelper::getExtensionsByMimeType($this->getType()));
+
+        // Fallback on the file extension
+        if ($mimeType === false) {
+            $mimeType = substr($this->uri, strrpos($this->uri, '.') + 1);
+        }
+
+        return $mimeType;
     }
 
     /**
