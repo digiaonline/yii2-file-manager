@@ -15,6 +15,11 @@ class FileResource extends Component implements ResourceInterface
      */
     public $uri;
 
+    /**
+     * @var resource|null the stream context to use when retrieving files
+     */
+    public $streamContext;
+
     /** @var string */
     private $_contents;
     /** @var finfo  */
@@ -28,7 +33,9 @@ class FileResource extends Component implements ResourceInterface
         if (!$this->uri) {
             throw new InvalidConfigException('FileResource::$uri must be set.');
         }
-        $this->_contents = file_get_contents($this->uri);
+        
+        // Use the specified stream context when available
+        $this->_contents = file_get_contents($this->uri, false, $this->streamContext);
         $this->_finfo = new finfo(FILEINFO_MIME_TYPE);
     }
 
