@@ -50,7 +50,8 @@ class FileResource extends Component implements ResourceInterface
     public function getExtension()
     {
         // Generate the extension based on the MIME type if possible, eliminates inconsistencies
-        $mimeType = end(FileHelper::getExtensionsByMimeType($this->getType()));
+        $extensions = FileHelper::getExtensionsByMimeType($this->getType());
+        $mimeType   = end($extensions);
 
         // Fallback on the file extension
         if ($mimeType === false) {
